@@ -110,6 +110,8 @@ type Options struct {
 	CookieHttpOnly bool
 	// Set the SameSite flag on the `lang` cookie. Default is unset.
 	SameSite http.SameSite
+	// Don't call ctx.Query() and destroy request body
+	DoNotDestroyRequestBody bool
 }
 
 func prepareOptions(options []Options) Options {
@@ -177,7 +179,10 @@ func I18n(options ...Options) macaron.Handler {
 		hasCookie := false
 
 		// 1. Check URL arguments.
-		lang := ctx.Query(opt.Parameter)
+		var lang string
+		if !opt.DoNotDestroyRequestBody {
+			lang = ctx.Query(opt.Parameter)
+		}
 
 		// 2. Get language information from cookies.
 		if len(lang) == 0 {
